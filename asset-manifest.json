@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/kle-to-zmk/static/css/main.da26ed0c.chunk.css",
+    "main.js": "/kle-to-zmk/static/js/main.23e4695d.chunk.js",
+    "main.js.map": "/kle-to-zmk/static/js/main.23e4695d.chunk.js.map",
+    "runtime-main.js": "/kle-to-zmk/static/js/runtime-main.17ecc90c.js",
+    "runtime-main.js.map": "/kle-to-zmk/static/js/runtime-main.17ecc90c.js.map",
+    "static/css/2.150d169a.chunk.css": "/kle-to-zmk/static/css/2.150d169a.chunk.css",
+    "static/js/2.b45122ce.chunk.js": "/kle-to-zmk/static/js/2.b45122ce.chunk.js",
+    "static/js/2.b45122ce.chunk.js.map": "/kle-to-zmk/static/js/2.b45122ce.chunk.js.map",
+    "static/js/3.f74a68df.chunk.js": "/kle-to-zmk/static/js/3.f74a68df.chunk.js",
+    "static/js/3.f74a68df.chunk.js.map": "/kle-to-zmk/static/js/3.f74a68df.chunk.js.map",
+    "index.html": "/kle-to-zmk/index.html",
+    "static/css/2.150d169a.chunk.css.map": "/kle-to-zmk/static/css/2.150d169a.chunk.css.map",
+    "static/css/main.da26ed0c.chunk.css.map": "/kle-to-zmk/static/css/main.da26ed0c.chunk.css.map",
+    "static/js/2.b45122ce.chunk.js.LICENSE.txt": "/kle-to-zmk/static/js/2.b45122ce.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.17ecc90c.js",
+    "static/css/2.150d169a.chunk.css",
+    "static/js/2.b45122ce.chunk.js",
+    "static/css/main.da26ed0c.chunk.css",
+    "static/js/main.23e4695d.chunk.js"
+  ]
+}
