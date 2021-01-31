@@ -3,6 +3,7 @@ import ZMKhid from '../zmk/data/hid';
 import Button from 'react-bootstrap/Button';
 import {useState, useEffect, Fragment} from 'react';
 
+//TODO: doesn't include bluetooth codes
 export const Codes = ZMKhid.map(e => e.names).flat();
 
 var defaultMap = {
@@ -37,7 +38,6 @@ var defaultMap = {
   'ᛒ2':{name:'BT_SEL 2', bluetooth:true},
   'ᛒ3':{name:'BT_SEL 3', bluetooth:true},
   'ᛒ4':{name:'BT_SEL 4', bluetooth:true}
-
 };
 const wordRE = /[\S]+/;
 defaultMap = ZMKhid.reduce(
@@ -52,9 +52,12 @@ defaultMap = ZMKhid.reduce(
   },
   defaultMap
 );
+//add unique ids for each entry
+Object.entries(defaultMap).forEach(([key, value], index) => {
+  value.id = index;
+});
 
 function KeyMapEdit(props){
-  const [getChanged, setChanged] = useState(false);
   const [updates, setUpdates] = useState({});
   const map = props.map;
   const setMap = props.setMap;
@@ -62,14 +65,28 @@ function KeyMapEdit(props){
   let groupedCodes = ZMKhid.map(e => e.names);
   const unmappedCodeGroups = groupedCodes.filter(na => na.find(n => mappedNames.includes(n)) === undefined);
   const unmappedCodes = unmappedCodeGroups.map(na => na[0]);
-  console.log(unmappedCodes);
   function updateMap(){
-    props.setMap(Object.assign({}, map, updates));
-    setChanged(false);
+    var keys = Object.keys(map);
+    var num = keys.length;
+    let mapUpdates = Object.entries(updates).reduce((result, [code, key], index) => {
+      //avoid key collision
+      while (keys.includes(key)){
+        key = '_' + key;
+      }
+      result[key] = {name:code, id:num};
+      num++;
+      return result;
+    }, {});
+    props.setMap(Object.assign({}, map, mapUpdates));
     setUpdates({});
   };
   function updateKey(oldKey, e){
-    let newKey = e.target.value;
+    var newKey = e.target.value;
+    //make sure the new key doesn't erase and existing key
+    let keys = Object.keys(map);
+    while (keys.includes(newKey)){
+      newKey = '_' + newKey;
+    }
     let newMap = Object.assign({}, map);
     let temp = newMap[oldKey];
     delete newMap[oldKey];
@@ -82,9 +99,8 @@ function KeyMapEdit(props){
   };
   function updateCode(code, e){
     let newKey = e.target.value;
-    let newMap = Object.assign({}, map);
-    newMap[newKey] = {name:code};
-    setMap(newMap);
+    let newUpdates = Object.assign({}, updates, {[code]:newKey});
+    setUpdates(newUpdates);
   };
   useEffect(() => {
     if (map === undefined){
@@ -94,8 +110,8 @@ function KeyMapEdit(props){
   },[map, setMap]);
   const all = map === undefined
     ? null
-    : Object.entries(map)?.map(([key, value]) => (
-      <Row key={key}>
+    : Object.entries(map)?.sort(([ak, av], [bk, bv]) => av.id - bv.id)?.map(([key, value], index) => (
+      <Row key={value.id}>
         <Col>
           <FormControl defaultValue={key} onChange={e => updateKey(key, e)}/>
         </Col>
@@ -123,7 +139,7 @@ function KeyMapEdit(props){
   const updateBtn = (
         <Row>
           <Col>
-          <Button disabled={!getChanged} onClick={updateMap}>Update</Button>
+          <Button disabled={Object.keys(updates).length === 0} onClick={updateMap}>Update</Button>
           </Col>
           </Row>);
   return (
@@ -135,9 +151,9 @@ function KeyMapEdit(props){
         </Accordion.Toggle>
         <Accordion.Collapse eventKey='1'>
         <Card.Body>
-            {updateBtn}
+            {/*updateBtn*/}
         {all}
-            {updateBtn}
+            {/*updateBtn*/}
         </Card.Body>
         </Accordion.Collapse>
       </Card>

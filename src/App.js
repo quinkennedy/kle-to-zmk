@@ -21,6 +21,10 @@ const layerNames = [
   'BL','BC','BR',
   'FL','FC','FR'
 ];
+const LAYER_PRE = 'L_';
+function isLayerRef(key){
+  return !!(key?.toLocaleUpperCase()?.startsWith(LAYER_PRE));
+}
 
 function App() {
   const [errorMessage, setErrorMessage] = useState(undefined);
@@ -59,28 +63,46 @@ function App() {
   };
   useEffect(() => {
     var notMapped = [];
-function keyToCode(key){
+function keyToCode(key, altLayer){
   var code;
+  var bt = false;
   if (key === undefined){
-    code = '&trans';
+    code = undefined;
   } else if (Codes.includes(key.toLocaleUpperCase())){
-    code = '&kp ' + key.toLocaleUpperCase();
+    code = key.toLocaleUpperCase();
   } else {
     let keyWord = wordRE.exec(key)[0];
     var mapped = mapping[keyWord.toLocaleLowerCase()];
     if (mapped === undefined){
-      notMapped.push(key);
-      code = '&trans /*' + key + '*/';
-    } else if (mapped.bluetooth){
-      code = '&bt ' + mapped.name;
+      if (!isLayerRef(key)){
+        notMapped.push(key);
+      }
+      code = undefined;
     } else {
-      code = '&kp ' + mapped.name;
-    }
-    if (mapped !== undefined && keyWord !== key){
-      code += ' /*'+key+'*/';
+      bt = !!mapped.bluetooth;
+      code = mapped.name;
     }
   }
-  return code;
+  var result = '&trans';
+  if (code === undefined){
+    if (altLayer){
+      result = '&mo ' + altLayer;
+    }
+    if (key !== undefined){
+      result += ' /*'+key+'*/';
+    }
+  } else {
+    if (altLayer){
+      result = '&lt ' + altLayer + ' ' + code;
+    } else {
+      if (bt) {
+        result = '&bt ' + code;
+      } else {
+        result = '&kp ' + code;
+      }
+    }
+  }
+  return result;
 };
     if (kleJson){
       var layers = new Array(MAX_LAYERS);
@@ -97,15 +119,50 @@ function keyToCode(key){
           layers[i][rows.indexOf(k.y)].push({label:k.labels?.[i]});
         }
       });
+      var customLayerNames = {};
+      var customLayerKeys = {};
+      layers.forEach((layer, lindex) =>
+        {
+          layer.forEach((row, rindex) =>
+            {
+              row.forEach((key, kindex) =>
+                {
+                  if (isLayerRef(key.label))
+                  {
+                    customLayerNames[lindex] = key.label;
+                    customLayerKeys[rindex] = {[kindex]:key.label};
+                  }
+                });
+            });
+        });
+      var currLayerNames = Object.assign([], layerNames, customLayerNames);
       [layers[defaultLayer], layers[0]] = [layers[0], layers[defaultLayer]];
-      var currLayerNames = Object.assign([], layerNames);
       [currLayerNames[defaultLayer], currLayerNames[0]] =
         [currLayerNames[0], currLayerNames[defaultLayer]];
       setZMK(layers);
-      let preamble = '#include <behaviors.dtsi>\n#include <dt-bindings/zmk/keys.h>\n#include <dt-bindings/zmk/bt.h>\n{\n\tkeymap {\n\t\tcompatible="zmk,keymap";';
-      setKeymap(preamble + layers.reduce((result, layer, index) => {
-        return result + '\n\t\t' + currLayerNames[index] + '_layer {\n\t\t\tbindings = <\n' + columnify(layer.map(row => row.map(k => keyToCode(k.label))), {showHeaders:false}) + '\n\t\t\t>;\n\t\t};';
-      }, '') + '\n\t};\n};');
+      let preamble =
+`#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+` + Object
+    .entries(currLayerNames)
+    .filter(([key, value]) => isLayerRef(value))
+    .map(([key, value]) => '#define ' + value + ' ' + key).join('\n') +
+`
+{
+  keymap {
+    compatible="zmk,keymap";`;
+      setKeymap(preamble + layers.reduce((result, layer, lindex) => {
+        return result + '\n\t\t' + currLayerNames[lindex] + `_layer {
+          bindings = <
+` + columnify(layer.map((row, rindex) => row.map((key, kindex) => keyToCode(key.label, lindex === 0 ? customLayerKeys[rindex]?.[kindex] : undefined))), {showHeaders:false}) +
+`
+          >;
+        };`;
+      }, '') +
+`
+  };
+};`);
       //make unique
       notMapped = notMapped.filter((v,i,a) => a.indexOf(v) === i);
       setUnmappedKeys(notMapped);
