@@ -1,3 +1,6 @@
+#txt_kle_err {
+  color: red;
+}
 .App {
   text-align: center;
 }
@@ -35,4 +38,71 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+#label-move-src, #label-move-dst {
+    position: relative;
+    width: 108px;
+    height: 108px;
+    float: left;
+}
+
+#label-move-src .keyborder, #label-move-dst .keyborder {
+    position: absolute;
+    width: 108px;
+    height: 108px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000;
+    border-radius: 5px;
+    background-color: #ccc;
+    pointer-events: none;
+}
+
+#label-move-src .keylabels, #label-move-dst .keylabels {
+    position: absolute;
+    left: 6px;
+    top: 3px;
+    width: 96px;
+    height: 88px;
+    padding: 3px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(0,0,0,0.1);
+    background-color: #fcfcfc;
+    border-radius: 3px;
+    pointer-events: none;
+}
+
+#label-move-src .keylabel, #label-move-dst .keylabel {
+    position: absolute;
+    width: 90px;
+    height: 82px;
+    pointer-events: none;
+}
+
+#label-move-src .keylabel div, #label-move-dst .keylabel div {
+    position: absolute;
+    width: 90px;
+    max-width: 90px;
+    height: 82px;
+    pointer-events: none;
+}
+
+/* Key labels */
+.keylabel>div { display: table-cell; position: static !important; }
+/* Vertical alignment */
+.keylabel0>div, .keylabel1>div, .keylabel2>div { vertical-align: top; }
+.keylabel3>div, .keylabel4>div, .keylabel5>div { vertical-align: middle; }
+.keylabel6>div, .keylabel7>div, .keylabel8>div { vertical-align: bottom; }
+.keylabel9, .keylabel10, .keylabel11 { top: 100%; margin-top: -1px; font-size: 10px !important; max-height: 1em !important; white-space: nowrap; overflow: hidden; }
+/* Horizontal  alignment */
+.keylabel0>div, .keylabel3>div, .keylabel6>div, .keylabel9>div { text-align: left; }
+.keylabel1>div, .keylabel4>div, .keylabel7>div, .keylabel10>div { text-align: center; }
+.keylabel2>div, .keylabel5>div, .keylabel8>div, .keylabel11>div { text-align: right; }
+#label-move-src .keylabel9, #label-move-dst .keylabel9, #label-move-src .keylabel10, #label-move-dst .keylabel10, #label-move-src .keylabel11, #label-move-dst .keylabel11 {
+    overflow: visible;
+}
+#label-move-src .keylabel div *, #label-move-dst .keylabel div * {
+    pointer-events: all;
 }
