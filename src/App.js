@@ -121,12 +121,15 @@ function keyToCode(key, altLayer){
       });
       var customLayerNames = {};
       var customLayerKeys = {};
+      var isLayerEmpty = [];
       layers.forEach((layer, lindex) =>
         {
+          var hasKeys = false;
           layer.forEach((row, rindex) =>
             {
               row.forEach((key, kindex) =>
                 {
+                  hasKeys = hasKeys || !!(key.label);
                   if (isLayerRef(key.label))
                   {
                     customLayerNames[lindex] = key.label;
@@ -134,11 +137,18 @@ function keyToCode(key, altLayer){
                   }
                 });
             });
+            isLayerEmpty.push(!hasKeys);
         });
       var currLayerNames = Object.assign([], layerNames, customLayerNames);
+      //re-arrange so default layer is first
       [layers[defaultLayer], layers[0]] = [layers[0], layers[defaultLayer]];
       [currLayerNames[defaultLayer], currLayerNames[0]] =
         [currLayerNames[0], currLayerNames[defaultLayer]];
+      [isLayerEmpty[defaultLayer], isLayerEmpty[0]] = [isLayerEmpty[0], isLayerEmpty[defaultLayer]];
+      //discard empty layers
+      layers = layers.filter((layer, lindex) => !isLayerEmpty[lindex]);
+      currLayerNames = currLayerNames.filter((layer, lindex) => !isLayerEmpty[lindex]);
+
       setZMK(layers);
       let preamble =
 `#include <behaviors.dtsi>
@@ -149,7 +159,7 @@ function keyToCode(key, altLayer){
     .filter(([key, value]) => isLayerRef(value))
     .map(([key, value]) => '#define ' + value + ' ' + key).join('\n') +
 `
-{
+/ {
   keymap {
     compatible="zmk,keymap";`;
       setKeymap(preamble + layers.reduce((result, layer, lindex) => {
@@ -172,26 +182,26 @@ function keyToCode(key, altLayer){
     setDefaultLayer(parseInt(e.target.value));
   };
   return (
-    <Container>
-      <Row>
-        <Col>
-        <h1>
-          <Badge variant='warning'>ALPHA</Badge>
-            KLE to ZMK converter
-          <Badge variant='warning'>ALPHA</Badge>
-          </h1>
-        </Col>
-      </Row>
-      <Row>
-      <Col>
+<Container>
+  <Row>
+    <Col>
+      <h1>
+        <Badge variant='warning'>ALPHA</Badge>
+          KLE to ZMK converter
+        <Badge variant='warning'>ALPHA</Badge>
+      </h1>
+    </Col>
+  </Row>
+  <Row>
+    <Col>
       Converts layouts created with
       <a href='http://www.keyboard-layout-editor.com'> Keyboard Layout Editor </a>
       to keymaps for use with the
       <a href='https://zmkfirmware.dev'> ZMK Firmware </a>
-      </Col>
-      </Row>
-      <Row>
-        <Col xs={5} md={6} lg={7} xl={8} >
+    </Col>
+  </Row>
+  <Row>
+    <Col xs={7} sm={8} md={9} lg={10} >
       <Row>
         <Col>
           <Form.Group>
@@ -253,13 +263,26 @@ function keyToCode(key, altLayer){
           </Form.Group>
         </Col>
       </Row>
-      </Col>
-      <Col>
-      <KeyMap map={mapping} setMap={setMap} />
-      <SimpleList list={unmappedKeys} />
-      </Col>
+      <Row>
+        <Col>
+          <KeyMap map={mapping} setMap={setMap} />
+        </Col>
       </Row>
-    </Container>
+    </Col>
+    <Col>
+      <Row>
+        <Col>
+          Unmapped Keys:
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <SimpleList list={unmappedKeys} />
+        </Col>
+      </Row>
+    </Col>
+  </Row>
+</Container>
   );
 };
 
