@@ -133,7 +133,10 @@ function keyToCode(key, altLayer){
                   if (isLayerRef(key.label))
                   {
                     customLayerNames[lindex] = key.label;
-                    customLayerKeys[rindex] = {[kindex]:key.label};
+                    if (!customLayerKeys.hasOwnProperty(rindex)){
+                      customLayerKeys[rindex] = {};
+                    }
+                    customLayerKeys[rindex][kindex] = key.label;
                   }
                 });
             });
@@ -184,20 +187,25 @@ function keyToCode(key, altLayer){
   return (
 <Container>
   <Row>
-    <Col>
+    <Col id='header'>
       <h1>
-        <Badge variant='warning'>ALPHA</Badge>
-          KLE to ZMK converter
-        <Badge variant='warning'>ALPHA</Badge>
+        KLE to ZMK converter
+        <Badge variant='info'>BETA</Badge>
       </h1>
     </Col>
   </Row>
   <Row>
-    <Col>
+    <Col id='description'>
       Converts layouts created with
       <a href='http://www.keyboard-layout-editor.com'> Keyboard Layout Editor </a>
+      <br />
       to keymaps for use with the
       <a href='https://zmkfirmware.dev'> ZMK Firmware </a>
+    </Col>
+  </Row>
+  <Row>
+    <Col>
+      <hr />
     </Col>
   </Row>
   <Row>
@@ -220,6 +228,16 @@ function keyToCode(key, altLayer){
             </Form.Label>
             <Form.Control id='txt_kle' as='textarea' rows={5} onChange={updatedKLE} />
             {errorMessage ? (<Form.Text id='txt_kle_err'>{errorMessage}</Form.Text>) : null}
+          </Form.Group>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Form.Group>
+            <Form.Label>
+              ZMK Keymap
+            </Form.Label>
+            <Form.Control id='txt_zmk' as='textarea' rows={5} readOnly value={keymap} />
           </Form.Group>
         </Col>
       </Row>
@@ -250,16 +268,6 @@ function keyToCode(key, altLayer){
               ZMK Json
             </Form.Label>
             <JsonView src={zmkJson} collapsed />
-          </Form.Group>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Form.Group>
-            <Form.Label>
-              ZMK Keymap
-            </Form.Label>
-            <Form.Control id='txt_zmk' as='textarea' rows={5} readOnly value={keymap} />
           </Form.Group>
         </Col>
       </Row>

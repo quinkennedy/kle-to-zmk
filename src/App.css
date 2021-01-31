@@ -4,6 +4,12 @@
 div.map_arrow{
   padding: 0;
 }
+#header{
+  text-align: center;
+}
+#description{
+  text-align: center;
+}
 .App {
   text-align: center;
 }
