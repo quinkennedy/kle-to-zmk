@@ -1,6 +1,9 @@
 #txt_kle_err {
   color: red;
 }
+div.map_arrow{
+  padding: 0;
+}
 .App {
   text-align: center;
 }
